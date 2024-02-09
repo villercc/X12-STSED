@@ -1,0 +1,261 @@
+%% 第30章 极限学习机的回归拟合及分类——对比实验研究
+% <html>
+% <table border="0" width="600px" id="table1">	<tr>		<td><b><font size="2">该案例作者申明：</font></b></td>	</tr>	<tr><td><span class="comment"><font size="2">1：本人长期驻扎在此<a target="_blank" href="http://www.matlabsky.com/forum-78-1.html"><font color="#0000FF">板块</font></a>里，对该案例提问，做到有问必答。</font></span></td></tr><tr>	<td><span class="comment"><font size="2">2</font><font size="2">：此案例有配套的教学视频，视频下载请点击<a href="http://www.matlabsky.com/forum-91-1.html">http://www.matlabsky.com/forum-91-1.html</a></font><font size="2">。 </font></span></td>	</tr>			<tr>		<td><span class="comment"><font size="2">		3：此案例为原创案例，转载请注明出处（《MATLAB智能算法30个案例分析》）。</font></span></td>	</tr>		<tr>		<td><span class="comment"><font size="2">		4：若此案例碰巧与您的研究有关联，我们欢迎您提意见，要求等，我们考虑后可以加在案例里。</font></span></td>	</tr>	<tr>		<td><span class="comment"><font size="2">		5：以下内容为初稿，与实际发行的书籍内容略有出入，请以书籍中的内容为准。</font></span></td>	</tr>	</table>
+% </html>
+
+%% Part1:ELM的回归拟合——基于近红外光谱的汽油辛烷值预测
+clear all
+clc
+
+%% 训练集/测试集产生
+%% 训练集/测试集产生
+NIR = xlsread('E:\31');
+octane = xlsread('E:\41');
+temp = randperm(size(NIR,1));
+% 训练集——50个样本
+P_train = NIR(temp(1:34),:)';
+T_train = octane(temp(1:34),:)';
+% 测试集——10个样本
+P_test = NIR(temp(35:end),:)';
+T_test = octane(temp(35:end),:)';
+
+%% 数据归一化
+
+% 训练集
+[Pn_train,inputps] = mapminmax(P_train,0,1);
+Pn_test = mapminmax('apply',P_test,inputps);
+% 测试集
+[Tn_train,outputps] = mapminmax(T_train,0,1);
+Tn_test = mapminmax('apply',T_test,outputps);
+
+% c1 = 2; % c1 belongs to [0,2]
+% c2 = 2; % c2 belongs to [0,2]
+% maxgen=100;   % 进化次数 
+% sizepop=20;   % 种群规模
+% popcmax=10^(10);
+% popcmin=10^(-2);
+% popgmax=10^(10);
+% popgmin=10^(-2);
+% k = 0.6; % k belongs to [0.1,1.0];
+% Vcmax = k*popcmax;
+% Vcmin = -Vcmax ;
+% Vgmax = k*popgmax;
+% Vgmin = -Vgmax ;
+% % SVM参数初始化 
+% v = 5;
+% %% 产生初始粒子和速度
+% for i=1:sizepop
+%     % 随机产生种群
+%     pop(i,1) = (popcmax-popcmin)*rand+popcmin;    % 初始种群
+%     pop(i,2) = (popgmax-popgmin)*rand+popgmin;
+%     V(i,1)=Vcmax*rands(1);  % 初始化速度
+%     V(i,2)=Vgmax*rands(1);
+%     % 计算初始适应度
+%     C=pop(i,1);
+%     Kernel_para=pop(i,2);
+%     fitness(i) = wucha(Pn_train,Tn_train, 0, C, 'RBF_kernel',Kernel_para);
+%     fitness(i) = -fitness(i);
+% end
+% % 找极值和极值点
+% [global_fitness,bestindex]=min(fitness); % 全局极值
+% local_fitness=fitness;   % 个体极值初始化
+% global_x=pop(bestindex,:);   % 全局极值点
+% local_x=pop;    % 个体极值点初始化
+% tic
+% %% 迭代寻优
+% for i=1:maxgen
+%    
+%     for j=1:sizepop
+%        
+%         %速度更新
+%         wV = 0.9; % wV best belongs to [0.8,1.2]
+%         V(j,:) = wV*V(j,:) + c1*rand*(local_x(j,:) - pop(j,:)) + c2*rand*(global_x - pop(j,:));
+%         if V(j,1) > Vcmax
+%             V(j,1) = Vcmax;
+%         end
+%         if V(j,1) < Vcmin
+%             V(j,1) = Vcmin;
+%         end
+%         if V(j,2) > Vgmax
+%             V(j,2) = Vgmax;
+%         end
+%         if V(j,2) < Vgmin
+%             V(j,2) = Vgmin;
+%         end
+%        
+%         %种群更新
+%         wP = 0.6;
+%         pop(j,:)=pop(j,:)+wP*V(j,:);
+%         if pop(j,1) > popcmax
+%             pop(j,1) = popcmax;
+%         end
+%         if pop(j,1) < popcmin
+%             pop(j,1) = popcmin;
+%         end
+%         if pop(j,2) > popgmax
+%             pop(j,2) = popgmax;
+%         end
+%         if pop(j,2) < popgmin
+%             pop(j,2) = popgmin;
+%         end
+%        
+%         % 自适应粒子变异
+%         if rand>0.5
+%             k=ceil(2*rand);
+%             if k == 1
+%                 pop(j,k) = (20-1)*rand+1;
+%             end
+%             if k == 2
+%                 pop(j,k) = (popgmax-popgmin)*rand+popgmin;
+%             end           
+%         end
+%        
+%         %适应度值
+%          C=pop(j,1);
+%     Kernel_para=pop(j,2);
+%     fitness(j) = wucha(Pn_train,Tn_train, 0, C, 'RBF_kernel',Kernel_para);
+%     fitness(j) = -fitness(j);
+%     end
+%    
+%     %个体最优更新
+%     if fitness(j) < local_fitness(j)
+%         local_x(j,:) = pop(j,:);
+%         local_fitness(j) = fitness(j);
+%     end
+%    
+%     %群体最优更新
+%     if fitness(j) < global_fitness
+%         global_x = pop(j,:);
+%         global_fitness = fitness(j);
+%     end
+%    
+%     fit_gen(i)=global_fitness;   
+%        
+% end
+% toc
+% %% 结果分析
+% plot(-fit_gen,'LineWidth',5);
+% title(['适应度曲线','(参数c1=',num2str(c1),',c2=',num2str(c2),',终止代数=',num2str(maxgen),')'],'FontSize',13);
+% xlabel('进化代数');ylabel('适应度');
+% bestc = global_x(1)
+% bestg = global_x(2)
+% bestCVaccuarcy = -fit_gen(maxgen)
+% C=bestc;
+% Kernel_para=bestg;
+% C=1000;
+% Kernel_para=10000;
+
+% 寻找最佳c参数/g参数
+% [c,g] = meshgrid(-10:0.5:10,-10:0.5:10);
+% [m,n] = size(c);
+% cg = zeros(m,n);
+% eps = 10^(-4);
+% v = 5;
+% bestc = 0;
+% bestg = 0;
+% error = Inf;
+% for i = 1:m
+%     for j = 1:n
+%         c=2^c(i,j);
+%         g=2^g(i,j);
+%         cg(i,j) = wucha(Pn_train,Tn_train, 0, c, 'RBF_kernel',g);
+%         if cg(i,j) < error
+%             error = cg(i,j);
+%             bestc = 2^c(i,j);
+%             bestg = 2^g(i,j);
+%         end
+%         if abs(cg(i,j) - error) <= eps && bestc > 2^c(i,j)
+%             error = cg(i,j);
+%             bestc = 2^c(i,j);
+%             bestg = 2^g(i,j);
+%         end
+%     end
+% end
+% 创建/训练SVM  
+
+
+
+[OutputWeight,Omega_test,Y] = kelmtrain(Pn_train, Tn_train, Pn_test, 0, 1000, 'RBF_kernel',10);
+
+Y] =  wucha(Pn_train,Tn_train, 0, 10, 'RBF_kernel',100);
+A=Y
+P_sim=mapminmax('reverse',Y,outputps)
+tn_sim = kelmpredict(OutputWeight,Omega_test);
+T_sim = mapminmax('reverse',tn_sim,outputps)
+
+%% 结果对比
+result = [T_test' T_sim'];
+% 均方误差
+E = mse(T_sim - T_test);
+% 决定系数
+N = length(T_test);
+R2=(N*sum(T_sim.*T_test)-sum(T_sim)*sum(T_test))^2/((N*sum((T_sim).^2)-(sum(T_sim))^2)*(N*sum((T_test).^2)-(sum(T_test))^2)); 
+
+%% 绘图
+figure(1)
+plot(1:N,T_test,'r-*',1:N,T_sim,'b:o')
+grid on
+legend('真实值','预测值')
+xlabel('样本编号')
+ylabel('辛烷值')
+string = {'测试集辛烷值含量预测结果对比(KELM)';['(mse = ' num2str(E) ' R^2 = ' num2str(R2) ')']};
+title(string)
+
+% %% Part2:ELM的分类——鸢尾花种类识别
+% clear all
+% clc
+% 
+% %% 训练集/测试集产生
+% load iris_data.mat
+% % 随机产生训练集和测试集
+% P_train = [];
+% T_train = [];
+% P_test = [];
+% T_test = [];
+% for i = 1:3
+%     temp_input = features((i-1)*50+1:i*50,:);
+%     temp_output = classes((i-1)*50+1:i*50,:);
+%     n = randperm(50);
+%     % 训练集——120个样本
+%     P_train = [P_train temp_input(n(1:40),:)'];
+%     T_train = [T_train temp_output(n(1:40),:)'];
+%     % 测试集——30个样本
+%     P_test = [P_test temp_input(n(41:50),:)'];
+%     T_test = [T_test temp_output(n(41:50),:)'];
+% end
+% 
+% %% ELM创建/训练
+% [IW,B,LW,TF,TYPE] = elmtrain(P_train,T_train,20,'sig',1);
+% 
+% %% ELM仿真测试
+% T_sim_1 = elmpredict(P_train,IW,B,LW,TF,TYPE);
+% T_sim_2 = elmpredict(P_test,IW,B,LW,TF,TYPE);
+% 
+% %% 结果对比
+% result_1 = [T_train' T_sim_1'];
+% result_2 = [T_test' T_sim_2'];
+% % 训练集正确率
+% k1 = length(find(T_train == T_sim_1));
+% n1 = length(T_train);
+% Accuracy_1 = k1 / n1 * 100;
+% disp(['训练集正确率Accuracy = ' num2str(Accuracy_1) '%(' num2str(k1) '/' num2str(n1) ')'])
+% % 测试集正确率
+% k2 = length(find(T_test == T_sim_2));
+% n2 = length(T_test);
+% Accuracy_2 = k2 / n2 * 100;
+% disp(['测试集正确率Accuracy = ' num2str(Accuracy_2) '%(' num2str(k2) '/' num2str(n2) ')'])
+% 
+% %% 绘图
+% figure(2)
+% plot(1:30,T_test,'bo',1:30,T_sim_2,'r-*')
+% grid on
+% xlabel('测试集样本编号')
+% ylabel('测试集样本类别')
+% string = {'测试集预测结果对比(ELM)';['(正确率Accuracy = ' num2str(Accuracy_2) '%)' ]};
+% title(string)
+% legend('真实值','ELM预测值')
+% 
+% %%
+% % <html>
+% % <table width="656" align="left" >	<tr><td align="center"><p align="left"><font size="2">相关论坛：</font></p><p align="left"><font size="2">Matlab技术论坛：<a href="http://www.matlabsky.com">www.matlabsky.com</a></font></p><p align="left"><font size="2">M</font><font size="2">atlab函数百科：<a href="http://www.mfun.la">www.mfun.la</a></font></p></td>	</tr></table>
+% % </html>
