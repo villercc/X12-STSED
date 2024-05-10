@@ -1,0 +1,22 @@
+Description of the dataset:
+
+"Process data for the mini-essay_try2ed.xlsx": contains search engine data (SED)
+"XI-2 De-Outliers.csv": contains air passenger demand data.
+
+"try2ed" file: the data used for this model training and comparison model training in the experimental part, which is described as follows:
+"QSX.csv": contains trend component data (QSX) reconstructed from the original air passenger volume sequence and the preprocessing STSED series.
+
+"PD-TVFEMD-QSX.csv": contains trend component data (QSX) reconstructed from the original air passenger volume sequence and STSED series after two-stage data preprocessing and TVFEMD processing.
+
+"PD-TVFEMD-BDX2.csv": contains the volatility component data (BDX) reconstructed from the original air passenger volume sequence and STSED series after two-stage data preprocessing and TVFEMD processing, which is directly weighted and distance-weighted.
+
+"PD-TVFEMD-BDX.csv": contains the volatility component data (BDX) reconstructed from the original air passenger volume sequence and STSED series after two-stage data preprocessing and TVFEMD processing.
+
+"PD-EMD-BDX2.csv": contains the volatility component data (BDX) reconstructed from the original air passenger volume sequence and STSED series after two-stage data preprocessing and EMD processing.
+"PD-CEEMDAN-BDX2.csv": contains the volatility component data (BDX) reconstructed from the original air passenger volume sequence and STSED series after two-stage data preprocessing and CEEMDAN-processing.
+
+"PD_NFP.csv": contains randomised 5-bar search engine data (SED) without decomposition after two-stage data preprocessing.
+
+"PD.csv": contains data without decomposition after two-stage data preprocessing.
+
+"DM_data60.csv": data used for DM tests.
